@@ -1,12 +1,12 @@
 # SPDX-License-Identifier: MPL-2.0
 
 [package]
-name = "semver-pubgrub"
+name = "creeper-semver-pubgrub"
 version = "0.1.0"
-edition = "2021"
+edition = "2024"
 description = "Compatibility between VersionReq from semver and VersionSet from pubgrub"
 readme = "README.md"
-repository = "https://github.com/pubgrub-rs/semver-pubgrub"
+repository = "https://github.com/misaka10987/creeper-semver-pubgrub"
 license = "MPL-2.0"
 keywords = ["dependency", "pubgrub", "semver", "solver", "version"]
 categories = ["algorithms"]
