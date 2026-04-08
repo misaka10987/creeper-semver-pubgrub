@@ -292,11 +292,10 @@ impl<V: VersionLike> SemverPubgrub<V> {
 
 impl<V: VersionLike + Display> Display for SemverPubgrub<V> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        "SemverPubgrub { norml: ".fmt(f)?;
-        self.normal.fmt(f)?;
-        ", pre: ".fmt(f)?;
-        self.pre.fmt(f)?;
-        " } ".fmt(f)
+        if self.pre.is_empty() {
+            return write!(f, "{{ {} }}", self.normal);
+        }
+        write!(f, "{{ {} pre {} }}", self.normal, self.pre)
     }
 }
 
