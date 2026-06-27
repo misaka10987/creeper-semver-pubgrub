@@ -2,7 +2,7 @@
 
 [package]
 name = "creeper-semver-pubgrub"
-version = "0.2.0"
+version = "0.3.0"
 edition = "2024"
 description = "Compatibility between VersionReq from semver and VersionSet from pubgrub"
 readme = "README.md"
@@ -15,7 +15,7 @@ categories = ["algorithms"]
 
 [dependencies]
 semver = "1.0.28"
-pubgrub = "0.3.0"
+pubgrub = "0.4.0"
 serde = { version = "1.0.228", features = ["derive"], optional = true }
 zerocopy = { version = "0.8.48", features = ["derive"] }
 
