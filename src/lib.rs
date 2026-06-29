@@ -26,6 +26,54 @@ fn range_is_empty<V: PartialEq>(r: &Range<V>) -> bool {
     r == &Range::empty()
 }
 
+fn display_range<V>(range: &Range<V>) -> String
+where
+    V: Display + VersionLike,
+{
+    if range.is_empty() {
+        return "!".into();
+        // return "∅".into();
+    }
+
+    if let Some(v) = range.as_singleton() {
+        return v.to_string();
+    }
+
+    let segments = range.iter().collect::<Vec<_>>();
+
+    if segments.len() > 1 {
+        return range.to_string();
+    }
+
+    let (left, right) = segments[0];
+
+    fn adjacent<V: VersionLike>(left: &V, right: &V) -> bool {
+        if !left.pre().is_empty() || !right.pre().is_empty() {
+            return false;
+        }
+        left.major() == right.major()
+            && left.minor() == right.minor()
+            && left.patch() + 1 == right.patch()
+    }
+
+    match (left, right) {
+        (Bound::Included(l), Bound::Included(r)) if l == r => l.to_string(),
+        (Bound::Included(l), Bound::Excluded(r)) if adjacent(l, r) => l.to_string(),
+        (Bound::Excluded(l), Bound::Included(r)) if adjacent(l, r) => r.to_string(),
+        (Bound::Excluded(l), Bound::Excluded(r)) if adjacent(l, r) => "!".into(),
+        (Bound::Excluded(l), Bound::Excluded(r))
+            if l.pre().is_empty()
+                && r.pre().is_empty()
+                && l.major() == r.major()
+                && l.minor() == r.minor()
+                && l.patch() + 2 == r.patch() =>
+        {
+            Version::new(l.major(), l.minor(), l.patch() + 1).to_string()
+        }
+        _ => return range.to_string(),
+    }
+}
+
 /// This needs to be bug-for-bug compatible with https://github.com/dtolnay/semver/blob/master/src/eval.rs
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, PartialEq, Eq, Clone, Hash)]
@@ -293,9 +341,14 @@ impl<V: VersionLike> SemverPubgrub<V> {
 impl<V: VersionLike + Display> Display for SemverPubgrub<V> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         if self.pre.is_empty() {
-            return write!(f, "{{ {} }}", self.normal);
+            return write!(f, "{{ {} }}", display_range(&self.normal));
         }
-        write!(f, "{{ {} pre {} }}", self.normal, self.pre)
+        write!(
+            f,
+            "{{ {} pre {} }}",
+            display_range(&self.normal),
+            display_range(&self.pre)
+        )
     }
 }
 
